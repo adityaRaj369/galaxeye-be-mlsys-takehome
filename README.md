@@ -10,7 +10,9 @@ Offline slice of a satellite-tile land-use service.
 
 Open their form: https://forms.cloud.microsoft/r/19966HsT0C
 
-Paste the GitHub repo URL. That repo is this folder — `DESIGN.pdf`, `PART3.md`, this `README.md`, `app/`, `scripts/train.py`, `artifacts/landuse_clf.joblib`, `requirements.txt`, `tests/`, and `data/`. Do not upload `.venv/` or `var/`.
+Paste this repo: https://github.com/adityaRaj369/galaxeye-be-mlsys-takehome
+
+It already has `DESIGN.pdf`, `PART3.md`, this `README.md`, `app/`, `scripts/train.py`, `artifacts/landuse_clf.joblib`, `requirements.txt`, `tests/`, and `data/`. Do not upload `.venv/` or `var/`.
 
 ```powershell
 pytest
