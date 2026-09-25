@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Overview{% endblock %}
+{% block body %}
+<h1 class="page-title">Overview</h1>
+<p class="lead">This is the working slice the brief asked for, plus the smallest screens an analyst needs to see it.</p>
+<div class="grid kpis">
+  <div class="card"><div class="kpi-label">Tiles stored</div><div class="kpi-value">{{ stats.tiles_stored }}</div><div class="muted">SQLite + files on disk</div></div>
+  <div class="card"><div class="kpi-label">Needs review</div><div class="kpi-value">{{ stats.by_review_status.needs_review or 0 }}</div><div class="muted">confidence below {{ threshold }}</div></div>
+  <div class="card"><div class="kpi-label">Train eval accuracy</div><div class="kpi-value">{% if eval_acc %}{{ (eval_acc * 100)|round(1) }}%{% else %}—{% endif %}</div><div class="muted">their eval_set, not the grade</div></div>
+  <div class="card"><div class="kpi-label">Last canary</div><div class="kpi-value">{% if canary %}{{ (canary.accuracy * 100)|round(1) }}%{% else %}—{% endif %}</div><div class="muted">{% if canary and canary.healthy %}healthy vs train{% elif canary %}drop vs train{% else %}run it on Model{% endif %}</div></div>
+</div>
+<div class="card" style="margin-top:14px">
+  <h2>What the PDF asked, and where it lives</h2>
+  <ol class="ol">
+    <li><b>Part 1 design note</b> — file <span class="path">DESIGN.md</span></li>
+    <li><b>Part 2 core path</b> — <span class="path">POST /tiles</span> or the <a href="/ingest">Ingest</a> page. Local model, then store.</li>
+    <li><b>Part 3 answers</b> — bottom of <span class="path">README.md</span></li>
+    <li><b>How training works</b> — <a href="/how-we-train">/how-we-train</a></li>
+    <li><b>How prediction works</b> — <a href="/how-we-predict">/how-we-predict</a></li>
+  </ol>
+</div>
+<div class="card" style="margin-top:14px">
+  <h2>Tile flow</h2>
+  <div class="steps">
+    <div class="step"><b>1. Ingest</b> PNG bytes only. Filename is not the class.</div>
+    <div class="step"><b>2. Features</b> Colour histogram + 8x8 thumbnail + channel stats.</div>
+    <div class="step"><b>3. Model</b> RandomForest on disk. <span class="path">artifacts/landuse_clf.joblib</span></div>
+    <div class="step"><b>4. Store / review</b> SQLite row, image copy, sha256. Low confidence is flagged.</div>
+  </div>
+</div>
+{% endblock %}

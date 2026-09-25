@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+var/
+*.db
+.DS_Store
+Thumbs.db
+scripts/_render_design.py
+scripts/_pdf_links.py

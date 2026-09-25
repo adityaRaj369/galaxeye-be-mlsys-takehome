@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}GalaxEye tile desk{% endblock %}</title>
+  <link rel="stylesheet" href="/static/desk.css?v=2" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div>
+        <h1>GalaxEye offline tile desk</h1>
+        <p>Assignment slice: ingest a tile, classify it locally, store the result, then query or correct it.</p>
+      </div>
+      <div class="pills">
+        <span class="pill">{{ model_version }}</span>
+        <span class="pill">offline</span>
+        {% if canary %}
+          <span class="pill {% if canary.healthy %}ok{% else %}bad{% endif %}">canary {{ (canary.accuracy * 100)|round(1) }}%</span>
+        {% else %}
+          <span class="pill">canary not run</span>
+        {% endif %}
+      </div>
+    </div>
+    <input id="nav-toggle" type="checkbox" />
+    <label class="burger" for="nav-toggle">Menu</label>
+    <nav>
+      {% for href, label in nav %}
+        <a href="{{ href }}" class="{% if active == href %}active{% endif %}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+  </header>
+  <main>
+    {% block body %}{% endblock %}
+  </main>
+</body>
+</html>

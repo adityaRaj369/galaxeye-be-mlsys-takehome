@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Model and canary{% endblock %}
+{% block body %}
+<h1 class="page-title">Model and canary</h1>
+<p class="lead">Local artifact <span class="path">artifacts/landuse_clf.joblib</span>. Version {{ model_version }}. Threshold {{ threshold }}. Classes: {{ classes|join(", ") }}.</p>
+
+<div class="card">
+  <h2>Stored class counts</h2>
+  <div class="bars">
+    {% for c in classes %}
+    {% set n = stats.by_label.get(c, 0) %}
+    <div class="bar-row"><span>{{ c }}</span><div class="bar"><i style="width: {{ ((n / bar_max) * 100)|round(0) if bar_max else 0 }}%"></i></div><span>{{ n }}</span></div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2>Offline canary</h2>
+  <p class="muted">Re-scores the frozen eval gold set and writes <span class="path">var/canary.json</span>.</p>
+  <form method="post" action="/model/canary">
+    <button class="primary" type="submit">Run canary now</button>
+  </form>
+  {% if canary %}
+    <p style="margin-top:12px">
+      <span class="badge {% if canary.healthy %}ok{% else %}bad{% endif %}">{% if canary.healthy %}healthy{% else %}unhealthy{% endif %}</span>
+      accuracy {{ (canary.accuracy * 100)|round(1) }}% on {{ canary.tiles_scored }} tiles
+      · train baseline {{ (canary.baseline_accuracy_at_train * 100)|round(1) }}%
+    </p>
+    <div class="bars">
+      {% for c, acc in canary.per_class_accuracy.items() %}
+      <div class="bar-row"><span>{{ c }}</span><div class="bar"><i style="width: {{ ((acc or 0) * 100)|round(0) }}%"></i></div><span>{{ ((acc or 0) * 100)|round(1) }}%</span></div>
+      {% endfor %}
+    </div>
+    {% if canary.confusion_matrix %}
+    <p class="muted" style="margin-top:14px">Confusion matrix (rows = true label)</p>
+    <table class="matrix">
+      <tr><th>true \ pred</th>{% for c in classes %}<th>{{ c }}</th>{% endfor %}</tr>
+      {% for src in classes %}
+      <tr>
+        <th>{{ src }}</th>
+        {% for dst in classes %}
+        <td class="{% if src == dst %}diag{% endif %}">{{ canary.confusion_matrix[src][dst] }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% if canary.top_mistakes %}
+    <p class="muted">Most common mistakes</p>
+    <ul>{% for pair, n in canary.top_mistakes %}<li>{{ pair }} ({{ n }})</li>{% endfor %}</ul>
+    {% endif %}
+  {% else %}
+    <p class="muted" style="margin-top:12px">No canary yet. Run it once so the gold-set health is on disk.</p>
+  {% endif %}
+</div>
+{% endblock %}

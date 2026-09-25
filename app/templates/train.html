@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}How we train{% endblock %}
+{% block body %}
+<h1 class="page-title">How we train</h1>
+<p class="lead">The assignment did not name a model. They gave labelled folders and said train or use a pretrained local model. We trained on their data only.</p>
+
+<div class="card">
+  <h2>Where the labels came from</h2>
+  <p>Not from <span class="path">eval_labels.csv</span>. That file is a hidden test set.</p>
+  <p>Training labels are the <b>folder names</b> in the zip they sent:</p>
+  <p><span class="path">data/be-mlsys-assignment-dataset/candidate_tiles/Forest/</span> … 150 PNGs per class, 7 classes, 1050 tiles.</p>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2>What we do in scripts/train.py</h2>
+  <ol class="ol">
+    <li>Open every PNG under each class folder.</li>
+    <li>Turn the image into numbers: 16-bin RGB histograms, an 8×8 colour thumbnail, and per-channel mean/std. Same function used at predict time (<span class="path">app/features.py</span>).</li>
+    <li>Hold out 20% of those tiles to sanity-check.</li>
+    <li>Fit a scikit-learn RandomForest on the rest, then refit on all 1050.</li>
+    <li>Score <span class="path">eval_set/</span> against <span class="path">eval_labels.csv</span>. Current number: <b>{% if eval_acc %}{{ (eval_acc * 100)|round(1) }}%{% else %}run train.py{% endif %}</b>. Highway is the weak class. They are not grading this.</li>
+    <li>Write <span class="path">artifacts/landuse_clf.joblib</span> — the model file the API loads.</li>
+  </ol>
+  <pre>python scripts/train.py</pre>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2>What we did not do</h2>
+  <p>No OpenAI, no cloud vision, no extra satellite download, no new fake tiles. After training, inference does not need the internet or the CSV.</p>
+  <p>Next: <a href="/how-we-predict">how prediction uses that file</a>.</p>
+</div>
+{% endblock %}

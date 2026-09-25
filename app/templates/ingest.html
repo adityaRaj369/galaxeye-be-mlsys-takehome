@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Ingest{% endblock %}
+{% block body %}
+<h1 class="page-title">Ingest a tile</h1>
+<p class="lead">This is the required core path: take a tile, run the local classifier, store the result. The answer key is only shown afterwards if the filename is in eval_labels.csv.</p>
+
+<div class="card">
+  <h2>Upload one tile</h2>
+  <form class="inline" method="post" action="/ingest" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/png,image/jpeg" required />
+    <button class="primary" type="submit">Classify and store</button>
+  </form>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2>Or classify a labelled eval example</h2>
+  <p class="muted">Each button POSTs that image. The model still only sees pixels.</p>
+  <div class="samples">
+    {% for s in samples %}
+    <form method="post" action="/ingest/sample/{{ s.filename }}">
+      <button class="sample" type="submit">
+        <img src="{{ s.url }}" alt="{{ s.expected_label }}" />
+        <div><b>{{ s.expected_label }}</b><span class="muted">{{ s.filename }}</span></div>
+      </button>
+    </form>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card" style="margin-top:14px">
+  <h2>Batch: whole eval_set folder</h2>
+  <p class="muted">Classifies all 210 assignment eval tiles on this machine. Can take about 10 seconds.</p>
+  <form method="post" action="/ingest/eval-folder">
+    <button class="primary" type="submit">Ingest eval_set</button>
+  </form>
+</div>
+{% endblock %}

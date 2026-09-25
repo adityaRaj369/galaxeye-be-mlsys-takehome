@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Review {{ tile.filename }}{% endblock %}
+{% block body %}
+<p class="muted"><a href="/review">Review queue</a> · <a href="/catalog">Catalog</a></p>
+<h1 class="page-title">{{ tile.filename }}</h1>
+{% if flash %}<p class="flash">{{ flash }}</p>{% endif %}
+<div class="card detail">
+  <img class="preview" src="{{ tile.image_url }}" alt="{{ tile.filename }}" />
+  <div>
+    <p class="muted">{{ tile.id }}</p>
+    <p>Model predicted <b>{{ tile.predicted_label }}</b> at {{ (tile.confidence * 100)|round(1) }}%</p>
+    <p>Final label <b>{{ tile.final_label }}</b>
+      <span class="badge {% if tile.review_status == 'needs_review' %}warn{% elif tile.review_status == 'reviewed' %}ok{% else %}neutral{% endif %}">{{ tile.review_status }}</span>
+    </p>
+    {% if expected %}
+      <p>Answer key from eval_labels.csv (after predict, not used by the model): <b>{{ expected }}</b>
+        {% if expected == tile.predicted_label %}<span class="badge ok">matches</span>{% else %}<span class="badge bad">disagrees</span>{% endif %}
+      </p>
+    {% endif %}
+    <form method="post" action="/review/{{ tile.id }}">
+      <label for="corrected_label">Corrected class</label>
+      <div class="inline" style="margin-top:8px">
+        <select id="corrected_label" name="corrected_label">
+          {% for c in classes %}
+          <option value="{{ c }}" {% if (tile.corrected_label or tile.predicted_label) == c %}selected{% endif %}>{{ c }}</option>
+          {% endfor %}
+        </select>
+        <input type="text" name="note" placeholder="Note (optional)" value="{{ tile.review_note or '' }}" />
+        <button class="primary" type="submit">Save correction</button>
+      </div>
+    </form>
+    <div class="bars" style="margin-top:16px">
+      {% for name, score in tile.scores|dictsort(by='value', reverse=true) %}
+      <div class="bar-row"><span>{{ name }}</span><div class="bar"><i style="width: {{ (score * 100)|round(0) }}%"></i></div><span>{{ (score * 100)|round(1) }}%</span></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

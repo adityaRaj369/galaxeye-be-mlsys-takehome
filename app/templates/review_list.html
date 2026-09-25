@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Review queue{% endblock %}
+{% block body %}
+<h1 class="page-title">Review queue</h1>
+<p class="lead">Low-confidence rows first. Click a tile to keep the model label and write a human final_label.</p>
+<div class="tiles">
+  {% for t in tiles %}
+  <a class="tile-card" href="/review/{{ t.id }}">
+    <img src="{{ t.image_url }}" alt="{{ t.filename }}" />
+    <div class="body">
+      <h3>{{ t.filename }}</h3>
+      <span class="badge warn">{{ t.review_status }}</span>
+      <p class="muted">{{ t.predicted_label }} · {{ (t.confidence * 100)|round(1) }}%</p>
+    </div>
+  </a>
+  {% else %}
+  <p class="muted">Queue is empty. <a href="/catalog">Open the catalog</a> to correct any stored tile.</p>
+  {% endfor %}
+</div>
+{% endblock %}

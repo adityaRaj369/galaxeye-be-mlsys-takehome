@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Catalog{% endblock %}
+{% block body %}
+<h1 class="page-title">Catalog</h1>
+<p class="lead">Query stored predictions. This is “an analyst can query the results.”</p>
+{% if flash %}<p class="flash">{{ flash }}</p>{% endif %}
+<div class="card">
+  <form class="filters" method="get" action="/catalog">
+    <input type="search" name="q" value="{{ q or '' }}" placeholder="Search filename" />
+    <select name="label">
+      <option value="">All classes</option>
+      {% for c in classes %}
+      <option value="{{ c }}" {% if label == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+    <select name="review_status">
+      <option value="">All statuses</option>
+      {% for s in ['needs_review','accepted','reviewed'] %}
+      <option value="{{ s }}" {% if review_status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button class="primary" type="submit">Filter</button>
+  </form>
+  <p class="muted">{{ tiles|length }} row(s)</p>
+  <div class="tiles">
+    {% for t in tiles %}
+    <a class="tile-card" href="/review/{{ t.id }}">
+      <img src="{{ t.image_url }}" alt="{{ t.filename }}" />
+      <div class="body">
+        <h3>{{ t.filename }}</h3>
+        <span class="badge neutral">{{ t.final_label }}</span>
+        <span class="badge {% if t.review_status == 'needs_review' %}warn{% elif t.review_status == 'reviewed' %}ok{% else %}neutral{% endif %}">{{ t.review_status }}</span>
+        <p class="muted">pred {{ t.predicted_label }} · {{ (t.confidence * 100)|round(1) }}%</p>
+      </div>
+    </a>
+    {% else %}
+    <p class="muted">Nothing stored yet. <a href="/ingest">Ingest a tile</a>.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
